@@ -44,7 +44,7 @@ private fun githubApiGet(url: String, token: String): JSONObject {
         val body = response.body?.string().orEmpty()
         if (!response.isSuccessful) {
             val detail = try { JSONObject(body).optString("detail", body) } catch (_: Exception) { body }
-            throw IOException("HTTP \${response.code}: $detail")
+            throw IOException("HTTP ${response.code}: $detail")
         }
         return JSONObject(body)
     }
@@ -70,9 +70,9 @@ private fun GitHubAgentScreen(apiUrl: String, apiToken: String, onClose: () -> U
         fileContent = ""
         scope.launch {
             try {
-                val base = "$apiUrl/api/github/repos/\${owner.trim()}/\${repo.trim()}"
+                val base = "$apiUrl/api/github/repos/${owner.trim()}/${repo.trim()}"
                 val data = withContext(Dispatchers.IO) {
-                    githubApiGet("$base/contents?path=\${android.net.Uri.encode(targetPath)}", apiToken)
+                    githubApiGet("$base/contents?path=${android.net.Uri.encode(targetPath)}", apiToken)
                 }
                 val array = data.getJSONArray("items")
                 entries = (0 until array.length()).map { i ->
@@ -80,7 +80,7 @@ private fun GitHubAgentScreen(apiUrl: String, apiToken: String, onClose: () -> U
                     RepoEntry(item.optString("name"), item.optString("path"), item.optString("type"), item.optInt("size"))
                 }
                 path = targetPath
-                repoInfo = "$owner/$repo • \${entries.size} items"
+                repoInfo = "$owner/$repo • ${entries.size} items"
             } catch (e: Exception) { error = e.message ?: "Could not load repository" }
             finally { loading = false }
         }
@@ -92,9 +92,9 @@ private fun GitHubAgentScreen(apiUrl: String, apiToken: String, onClose: () -> U
         error = ""
         scope.launch {
             try {
-                val base = "$apiUrl/api/github/repos/\${owner.trim()}/\${repo.trim()}/file"
+                val base = "$apiUrl/api/github/repos/${owner.trim()}/${repo.trim()}/file"
                 val result = withContext(Dispatchers.IO) {
-                    githubApiGet("$base?path=\${android.net.Uri.encode(entry.path)}", apiToken)
+                    githubApiGet("$base?path=${android.net.Uri.encode(entry.path)}", apiToken)
                 }
                 fileTitle = result.optString("path", entry.path)
                 fileContent = result.optString("content")
