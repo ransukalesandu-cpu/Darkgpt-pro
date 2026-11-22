@@ -2,6 +2,8 @@ package com.darkgpt.android
 
 import android.content.Context
 import android.os.Bundle
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -101,6 +103,7 @@ private fun DarkGPTScreen(
     var menuOpen by remember { mutableStateOf(false) }
     var settingsOpen by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     fun loadModels() {
         scope.launch {
@@ -138,6 +141,7 @@ private fun DarkGPTScreen(
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextButton(onClick = { messages = emptyList() }) { Text("New chat") }
+                    TextButton(onClick = { context.startActivity(Intent(context, GitHubAgentActivity::class.java).apply { putExtra("api_url", apiUrl); putExtra("api_token", apiToken) }) }) { Text("GitHub") }
                     IconButton(onClick = { settingsOpen = true }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
                     }

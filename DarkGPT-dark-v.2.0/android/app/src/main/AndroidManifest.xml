@@ -5,6 +5,7 @@
         android:label="DarkGPT"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         android:usesCleartextTraffic="true">
+        <activity android:name=".GitHubAgentActivity" android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
