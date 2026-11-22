@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -129,7 +130,7 @@ private fun DarkGPTScreen(
     LaunchedEffect(apiUrl, apiToken) { if (apiUrl.isNotBlank()) loadModels() }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF090B12)) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
             Row(
                 modifier = Modifier.fillMaxWidth().background(Color(0xFF111522)).padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
