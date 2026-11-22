@@ -3,6 +3,7 @@
 Run from DarkGPT-dark-v.2.0 with:
     uvicorn android_backend.main:app --host 0.0.0.0 --port 8000
 """
+import logging
 import os
 import sys
 import json
@@ -28,7 +29,15 @@ from utils.get_response import (  # noqa: E402
     get_provider,
 )
 
-app = FastAPI(title="DarkGPT Android API", version="1.0.0")
+logger = logging.getLogger(__name__)
+
+# The DDG provider needs a VQD token from duckduckgo.com. If that host is
+# unreachable, retry once through the already-supported automatic GPT-4o
+# provider selection instead of failing the whole Android chat request.
+DDG_PROVIDER = "DDG"
+CHAT_FALLBACK_MODEL = "gpt-4o"
+
+app = FastAPI(title="DarkGPT Android API", version="1.1.0")
 
 allowed_origins = os.getenv("DARKGPT_CORS_ORIGINS", "*").split(",")
 app.add_middleware(
@@ -72,18 +81,54 @@ async def models() -> dict[str, list[dict[str, str]]]:
     }
 
 
+async def get_chat_answer(message: str, internal_model: str, provider_name: str) -> str:
+    """Generate a reply, bypassing DDG when its VQD endpoint is unreachable."""
+    try:
+        answer = await run_in_threadpool(
+            get_bot_response, message, internal_model, provider_name
+        )
+    except Exception as primary_error:
+        if provider_name != DDG_PROVIDER:
+            raise
+        logger.warning(
+            "DDG provider failed (%s); retrying chat with automatic GPT-4o provider",
+            type(primary_error).__name__,
+        )
+        try:
+            answer = await run_in_threadpool(
+                get_bot_response, message, CHAT_FALLBACK_MODEL, None
+            )
+        except Exception as fallback_error:
+            raise RuntimeError(
+                "DuckDuckGo provider failed and the GPT-4o fallback also failed: "
+                f"{fallback_error}"
+            ) from primary_error
+
+    if answer:
+        return answer
+
+    if provider_name == DDG_PROVIDER:
+        logger.warning("DDG provider returned an empty reply; trying automatic GPT-4o provider")
+        fallback_answer = await run_in_threadpool(
+            get_bot_response, message, CHAT_FALLBACK_MODEL, None
+        )
+        if fallback_answer:
+            return fallback_answer
+
+    return ""
+
+
 @app.post("/api/chat", response_model=ChatResponse, dependencies=[Depends(verify_api_key)])
-async def chat(payload: ChatRequest) -> Any:
+async def chat(payload: ChatRequest) -> ChatResponse:
     internal_model = get_model(payload.model)
     if not internal_model:
         raise HTTPException(status_code=400, detail="Unknown model")
 
     provider_name = get_provider(internal_model)
     try:
-        answer = await run_in_threadpool(
-            get_bot_response, payload.message, internal_model, provider_name
-        )
+        answer = await get_chat_answer(payload.message, internal_model, provider_name)
     except Exception as exc:
+        logger.exception("Chat generation failed for model %s", payload.model)
         raise HTTPException(status_code=502, detail=f"Model provider error: {exc}") from exc
 
     if not answer:
