@@ -102,5 +102,5 @@ websockets==12.0
 wsproto==1.2.0
 yarl==1.9.4
 
-# Required by the G4F HTTP client used by the Android API.
-curl_cffi>=0.7,<1
+# Keep the G4F HTTP transport on a known CurlMime-compatible version.
+curl_cffi==0.7.4
