@@ -5,7 +5,7 @@ services:
     plan: free
     rootDir: DarkGPT-dark-v.2.0
     buildCommand: pip install -r requirements.txt && pip install -r android-backend/requirements.txt
-    startCommand: uvicorn android_backend.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn main:app --app-dir android-backend --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
       - key: PYTHON_VERSION
