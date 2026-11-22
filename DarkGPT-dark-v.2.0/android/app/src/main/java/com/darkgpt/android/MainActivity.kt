@@ -2,6 +2,7 @@ package com.darkgpt.android
 
 import android.content.Context
 import android.os.Bundle
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -138,6 +139,7 @@ private fun DarkGPTScreen(
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextButton(onClick = { messages = emptyList() }) { Text("New chat") }
+                    TextButton(onClick = { startActivity(Intent(this@MainActivity, GitHubAgentActivity::class.java).apply { putExtra("api_url", prefs.getString("api_url", "http://10.0.2.2:8000")); putExtra("api_token", prefs.getString("api_token", "")) }) }) { Text("GitHub") }
                     IconButton(onClick = { settingsOpen = true }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
                     }
