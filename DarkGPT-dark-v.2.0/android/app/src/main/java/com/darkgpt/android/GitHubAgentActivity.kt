@@ -104,7 +104,7 @@ private fun GitHubAgentScreen(apiUrl: String, apiToken: String, onClose: () -> U
     }
 
     Surface(Modifier.fillMaxSize(), color = Color(0xFF090B12)) {
-        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
                     Text("GITHUB AGENT", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
