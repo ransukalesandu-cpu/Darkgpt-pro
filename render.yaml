@@ -2,14 +2,13 @@ services:
   - type: web
     name: darkgpt-pro-api
     runtime: python
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
     plan: free
     rootDir: DarkGPT-dark-v.2.0
     buildCommand: pip install -r requirements.txt && pip install -r android-backend/requirements.txt
     startCommand: uvicorn android_backend.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: DARKGPT_API_TOKEN
         generateValue: true
